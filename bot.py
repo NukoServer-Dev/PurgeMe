@@ -23,10 +23,19 @@ async def purge_me(interaction: discord.Interaction, count: int):
     if count > 100:
         await interaction.response.send_message(ephemeral=True, embed=discord.Embed(description="一回で100件まで削除できます。", color=discord.Color.red()))
         return
+    if count < 1:
+        await interaction.response.send_message(ephemeral=True, embed=discord.Embed(description="1件以上を指定してください。", color=discord.Color.red()))
+        return
 
     await interaction.response.defer()
 
     def check(message: discord.Message):
+        if message.author.bot:
+            if not message.webhook_id:
+                return False
+            if message.author.display_avatar == interaction.user.display_name:
+                return True
+
         if message.author.id == interaction.user.id:
             return True
 
