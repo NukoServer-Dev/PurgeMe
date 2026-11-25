@@ -37,7 +37,7 @@ async def purge_me(interaction: discord.Interaction, count: int):
     except:
         await interaction.channel.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()))
 
-    await interaction.followup.send(content=f"あなたのメッセージが{len(deleted)}件削除されました。")
+    await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted)}件削除されました。", color=discord.Color.blue()))
 
 @bot.event
 async def on_ready():
@@ -45,5 +45,7 @@ async def on_ready():
     print("起動完了！")
 
     await bot.change_presence(activity=discord.CustomActivity(name="/purge"))
+
+    await bot.get_channel(1572070912964956272).send(content="<:trash:1574976390682378300> 起動しました。")
 
 bot.run(os.environ.get('DISCORD_TOKEN'))
