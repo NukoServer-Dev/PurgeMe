@@ -31,7 +31,9 @@ async def purge_me(interaction: discord.Interaction, count: int):
 
     def check(message: discord.Message):
         if message.author.bot:
-            if message.author.display_avatar == interaction.user.display_name:
+            if not message.webhook_id:
+                return False
+            if message.author.display_name == interaction.user.display_name:
                 return True
 
         if message.author.id == interaction.user.id:
