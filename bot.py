@@ -13,8 +13,10 @@ bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 @bot.tree.command(name="help", description="このBotの使い方")
 @discord.app_commands.default_permissions(manage_channels=True)
 async def help_cmd(interaction: discord.Interaction):
-    await interaction.response.defer()
-    await interaction.followup.send(embed=discord.Embed(title="このBotの使い方", description="`/purge`で自分のメッセージを削除できます。\nチャンネルの管理権限が必要です。", color=discord.Color.blue()))
+    await interaction.response.defer(ephemeral=True)
+    await interaction.followup.send(
+        embed=discord.Embed(title="このBotの使い方", description="`/purge`で自分のメッセージを削除できます。", color=discord.Color.blue())
+    )
 
 @bot.tree.command(name="purge", description="自分のメッセージを削除します。")
 @discord.app_commands.describe(count="削除する数")
@@ -48,6 +50,28 @@ async def purge_me(interaction: discord.Interaction, count: int):
 
     await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted)}件削除されました。", color=discord.Color.blue()))
 
+class ReadyButtonView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="通知ON")
+    async def start_notify_on(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer(ephemeral=True)
+
+        await interaction.user.add_roles(discord.Object(1575471165454024869), reason="起動通知ON")
+
+        await interaction.followup.send(content="起動通知をOnにしました。", ephemeral=True)
+
+    @discord.ui.button(label="通知OFF")
+    async def start_notify_off(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            await interaction.user.remove_roles(discord.Object(1575471165454024869), reason="起動通知OFF")
+            await interaction.followup.send(content="起動通知をOffにしました。", ephemeral=True)
+        except:
+            await interaction.followup.send(ephemeral=True, content="まだ通知をOnにしていません。")
+
 @bot.event
 async def on_ready():
     await bot.tree.sync()
@@ -55,6 +79,9 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.CustomActivity(name="/purge"))
 
-    await bot.get_channel(1572070912964956272).send(content="<:trash:1574976390682378300> 起動しました。")
+    await bot.get_channel(1575470427034357811).send(
+        embed=discord.Embed(title="PurgeMeは起動しました！", description="以下のボタンで通知を切り替えられます↓", color=discord.Color.random()),
+        view=ReadyButtonView()
+    )
 
 bot.run(os.environ.get('DISCORD_TOKEN'))
