@@ -66,11 +66,9 @@ class ReadyButtonView(discord.ui.View):
     async def start_notify_off(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(ephemeral=True)
 
-        try:
-            await interaction.user.remove_roles(discord.Object(1575471165454024869), reason="起動通知OFF")
-            await interaction.followup.send(content="起動通知をOffにしました。", ephemeral=True)
-        except:
-            await interaction.followup.send(ephemeral=True, content="まだ通知をOnにしていません。")
+        await interaction.user.remove_roles(discord.Object(1575471165454024869), reason="起動通知OFF")
+        
+        await interaction.followup.send(content="起動通知をOffにしました。", ephemeral=True)
 
 @bot.event
 async def on_ready():
@@ -80,6 +78,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.CustomActivity(name="/purge"))
 
     await bot.get_channel(1575470427034357811).send(
+        content="<@&1575471165454024869>",
         embed=discord.Embed(title="PurgeMeは起動しました！", description="以下のボタンで通知を切り替えられます↓", color=discord.Color.random()),
         view=ReadyButtonView()
     )
