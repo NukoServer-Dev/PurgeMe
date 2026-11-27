@@ -15,7 +15,16 @@ bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 async def help_cmd(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
     await interaction.followup.send(
-        embed=discord.Embed(title="このBotの使い方", description="`/purge`で自分のメッセージを削除できます。", color=discord.Color.blue())
+        embed=discord.Embed(title="このBotの使い方", description="""`/purge`
+> 自分の指定した分メッセージを削除できます。
+
+`ここから下を削除`
+> 指定したメッセージから下の自分のメッセージを削除できます。
+
+`メッセージを削除`
+> あなたのメッセージを
+> 一つ削除できます。
+""", color=discord.Color.blue())
     )
 
 @bot.tree.command(name="purge", description="自分のメッセージを削除します。")
@@ -91,12 +100,17 @@ async def delete_under_message(interaction: discord.Interaction, message: discor
 
         return False
 
+    is_plus = False
+    if check(message):
+        await message.delete()
+        is_plus = True
+
     try:
         deleted = await interaction.channel.purge(limit=100, check=check, after=message.created_at)
     except:
         await interaction.channel.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()))
 
-    await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted)}件削除されました。", color=discord.Color.blue()))
+    await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted) + (1 if is_plus else 0)}件削除されました。", color=discord.Color.blue()))
 
 class ReadyButtonView(discord.ui.View):
     def __init__(self):
