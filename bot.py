@@ -50,6 +50,54 @@ async def purge_me(interaction: discord.Interaction, count: int):
 
     await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted)}件削除されました。", color=discord.Color.blue()))
 
+@bot.tree.context_menu(name="メッセージを削除")
+@discord.app_commands.default_permissions(manage_messages=True)
+async def delete_message(interaction: discord.Interaction, message: discord.Message):
+    await interaction.response.defer(ephemeral=True)
+
+    async def process():
+        if message.author.id == interaction.user.id:
+            await message.delete()
+            return True
+        if message.author.bot:
+            if not message.webhook_id:
+                return False
+            if message.author.display_name == interaction.user.display_name:
+                await message.delete()
+                return True
+
+        return False
+
+    check = await process()
+    if check:
+        await interaction.followup.send(ephemeral=True, content="<:trash:1574976390682378300> あなたのメッセージを削除しました。")
+    else:
+        await interaction.followup.send(ephemeral=True, content="削除できるのはあなたのメッセージだけです。")
+
+@bot.tree.context_menu(name="ここから下を削除")
+@discord.app_commands.default_permissions(manage_messages=True)
+async def delete_under_message(interaction: discord.Interaction, message: discord.Message):
+    await interaction.response.defer()
+
+    def check(message: discord.Message):
+        if message.author.bot:
+            if not message.webhook_id:
+                return False
+            if message.author.display_name == interaction.user.display_name:
+                return True
+
+        if message.author.id == interaction.user.id:
+            return True
+
+        return False
+
+    try:
+        deleted = await interaction.channel.purge(limit=100, check=check, after=message.created_at)
+    except:
+        await interaction.channel.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()))
+
+    await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted)}件削除されました。", color=discord.Color.blue()))
+
 class ReadyButtonView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
