@@ -139,10 +139,11 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.CustomActivity(name="/purge"))
 
-    await bot.get_channel(1575470427034357811).send(
-        content="<@&1575471165454024869>",
-        embed=discord.Embed(title="PurgeMeは起動しました！", description="以下のボタンで通知を切り替えられます↓", color=discord.Color.random()),
-        view=ReadyButtonView()
-    )
+    if os.environ.get('SILENT_START') == "0":
+        await bot.get_channel(1575470427034357811).send(
+            content="<@&1575471165454024869>",
+            embed=discord.Embed(title="PurgeMeは起動しました！", description="以下のボタンで通知を切り替えられます↓", color=discord.Color.random()),
+            view=ReadyButtonView()
+        )
 
 bot.run(os.environ.get('DISCORD_TOKEN'))
