@@ -84,7 +84,7 @@ async def delete_message(interaction: discord.Interaction, message: discord.Mess
         await interaction.followup.send(ephemeral=True, content="削除できるのはあなたのメッセージだけです。")
 
 @bot.tree.context_menu(name="ここから下を削除")
-@discord.app_commands.default_permissions(manage_messages=True)
+@discord.app_commands.default_permissions(manage_channels=True)
 async def delete_under_message(interaction: discord.Interaction, message: discord.Message):
     await interaction.response.defer()
 
