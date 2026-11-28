@@ -54,9 +54,13 @@ async def purge_me(interaction: discord.Interaction, count: int):
 
     try:
         deleted = await interaction.channel.purge(limit=count + 1, check=check)
-    except:
-        await interaction.channel.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()))
-
+    except discord.Forbidden:
+        await interaction.followup.send(embed=discord.Embed(description="Botの権限がたりません。\nサーバーの管理者へお問い合わせください。", color=discord.Color.red()), ephemeral=True)
+        return
+    except Exception:
+        await interaction.followup.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()), ephemeral=True)
+        return
+    
     await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted)}件削除されました。", color=discord.Color.blue()))
 
 @bot.tree.context_menu(name="メッセージを削除")
@@ -77,7 +81,14 @@ async def delete_message(interaction: discord.Interaction, message: discord.Mess
 
         return False
 
-    check = await process()
+    try:
+        check = await process()
+    except discord.Forbidden:
+        await interaction.followup.send(embed=discord.Embed(description="Botの権限がたりません。\nサーバーの管理者へお問い合わせください。", color=discord.Color.red()), ephemeral=True)
+        return
+    except Exception:
+        await interaction.followup.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()), ephemeral=True)
+        return
     if check:
         await interaction.followup.send(ephemeral=True, content="<:trash:1574976390682378300> あなたのメッセージを削除しました。")
     else:
@@ -102,14 +113,24 @@ async def delete_under_message(interaction: discord.Interaction, message: discor
 
     is_plus = False
     if check(message):
-        await message.delete()
+        try:
+            await message.delete()
+        except discord.Forbidden:
+            await interaction.followup.send(embed=discord.Embed(description="Botの権限がたりません。\nサーバーの管理者へお問い合わせください。", color=discord.Color.red()), ephemeral=True)
+            return
+        except Exception:
+            await interaction.followup.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()), ephemeral=True)
         is_plus = True
 
     try:
         deleted = await interaction.channel.purge(limit=100, check=check, after=message.created_at)
-    except:
-        await interaction.channel.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()))
-
+    except discord.Forbidden:
+        await interaction.followup.send(embed=discord.Embed(description="Botの権限がたりません。\nサーバーの管理者へお問い合わせください。", color=discord.Color.red()), ephemeral=True)
+        return
+    except Exception:
+        await interaction.followup.send(embed=discord.Embed(description="削除に失敗しました。", color=discord.Color.red()), ephemeral=True)
+        return
+    
     await interaction.followup.send(embed=discord.Embed(description=f"<:trash:1574976390682378300> あなたのメッセージが{len(deleted) + (1 if is_plus else 0)}件削除されました。", color=discord.Color.blue()))
 
 class ReadyButtonView(discord.ui.View):
